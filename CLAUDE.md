@@ -16,11 +16,14 @@ derived from that file so that Figma MCP tools (`get_design_context`,
 brand — and so that whoever builds the actual app has a starting spec to
 implement tokens/components from.
 
-**Figma file**: WINCARS-Poland
-`https://www.figma.com/design/cVG8QGhFsJzdVNQE3Kf7nr/WINCARS-Poland`
-Pages:
-- `Home + правки` (node `0:1`) — main site mockup + review notes
-- `Onboarding Deck (Wincars)` — internal onboarding slide deck (16:9)
+**Figma files**:
+- **WINCARS-Poland** — `https://www.figma.com/design/cVG8QGhFsJzdVNQE3Kf7nr/WINCARS-Poland`
+  Pages:
+  - `Home + правки` (node `0:1`) — main site mockup + review notes
+  - `Onboarding v2 (Wincars)` (node `361:344`) — AB Soft-structure onboarding slide deck variant (16:9), RU
+- **Onboarding Deck (Wincars)** — `https://www.figma.com/design/eMB0d4zxvVFVI8izlIFYys/Onboarding-Deck--Wincars-`
+  (node `1:124`) — primary 16-slide onboarding deck (16:9), RU. Separate file from WINCARS-Poland —
+  always confirm which file key a request targets before calling `use_figma`.
 
 ---
 
@@ -59,7 +62,7 @@ Fonts: **Inter** (UI/body) and **Bebas Neue** (display headings).
 | `text.h2-section`   | Inter, Bold                | 32px  | 40px        | Section headings (e.g. FAQs) |
 | `text.h2-display`   | Inter, Extra Bold          | 48–64px | ~108%     | Large content-slide titles |
 | `text.body-medium`  | Inter, Medium              | 16–18px | 22–28px   | Nav links, intro paragraphs |
-| `text.body-regular` | Inter, Regular             | 16–18px | 26–28px   | Paragraph copy |
+| `text.body-regular` | Inter, Semi Bold            | 16–18px | 26–28px   | Paragraph copy — onboarding decks use Semi Bold (not Regular) for all body/description text for better legibility on dark and pale backgrounds |
 | `text.body-light`   | Inter, Light               | 50px  | 69px        | Hero subline ("samochód marzeń") |
 | `text.label`        | Inter, Medium, uppercase   | 11–13px | —          | Pills/tags, letter-spacing 1.5px |
 | `text.paragraph-bold` | Inter, Bold              | 16px  | 26px        | FAQ questions, letter-spacing 0.08px |
@@ -83,7 +86,25 @@ padding and **40px** gaps between bento cards.
 | `radius.sm`   | 4px | small elements |
 | `radius.md`   | 8px | inputs |
 | `radius.lg`   | 12–13px | cards, hero image |
-| `radius.full` | 26–35px / 100px | pill buttons, tags |
+| `radius.full` | 26–35px / 100px | pill buttons, tags (main site CTAs) |
+
+### Section pill / label component
+
+Onboarding-deck section pills (e.g. "SECTION 1", "ONBOARDING", "О КОМПАНИИ")
+use a **standardized**, non-fully-rounded style — distinct from the
+`radius.full` pill CTAs on the main site:
+
+- Padding: **30px horizontal, 23px vertical**
+- Corner radius: **8px**
+- Auto-layout frame, single text child, `Inter Semi Bold`, uppercase,
+  letter-spacing ~1.5px
+- Built via `use_figma` as an auto-layout frame (`primaryAxisSizingMode`/
+  `counterAxisSizingMode: "AUTO"`) so width hugs the label text
+
+When adding new pills to any onboarding/slide-deck file, match this spec
+exactly so all pills render uniformly — this was retrofitted across both
+onboarding decks (see Practical notes below for the standardization script
+pattern).
 
 ### Shadows / Elevation
 
