@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wincars — Onboarding</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --yellow: #FFCD11;
+    --yellow-light: #FFDE64;
+    --dark: #0F1013;
+    --white: #FFFFFF;
+    --black: #000000;
+    --gray-md: #4E4949;
+    --gray-bg: #F5F5F4;
+    --yellow-pale: #FFF8D9;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ── Deck container ── */
+  #deck {
+    position: relative;
+    width: 100vw; height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── Each slide ── */
+  .slide {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(60px) scale(0.98);
+    will-change: opacity, transform;
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(0) scale(1);
+    z-index: 2;
+  }
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-60px) scale(0.98);
+    z-index: 1;
+  }
+
+  /* ── Slide content entrance animations ── */
+  .slide.active .anim { animation: fadeUp 0.6s cubic-bezier(0.4,0,0.2,1) both; }
+  .slide.active .anim:nth-child(1) { animation-delay: 0.15s; }
+  .slide.active .anim:nth-child(2) { animation-delay: 0.25s; }
+  .slide.active .anim:nth-child(3) { animation-delay: 0.35s; }
+  .slide.active .anim:nth-child(4) { animation-delay: 0.45s; }
+  .slide.active .anim:nth-child(5) { animation-delay: 0.55s; }
+  .slide.active .anim:nth-child(6) { animation-delay: 0.65s; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── PILL labels ── */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 24px;
+    border-radius: 90px;
+    border: 1.5px solid currentColor;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    width: fit-content;
+  }
+  .pill-dark { color: var(--dark); border-color: var(--dark); }
+  .pill-white { color: var(--white); border-color: rgba(255,255,255,0.6); }
+
+  /* ── Copyright ── */
+  .copy {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.5;
+    position: absolute;
+    right: 80px;
+    top: 52px;
+  }
+
+  /* ─────────────────────────────────────────
+     SLIDE 01 — Cover
+  ───────────────────────────────────────── */
+  #s01 {
+    background: var(--yellow);
+    padding: 40px 80px;
+    overflow: hidden;
+  }
+  #s01 .bg-shape {
+    position: absolute;
+    right: -100px; top: -100px;
+    width: 900px; height: 900px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,222,100,0.9) 0%, rgba(255,205,17,0) 70%);
+    pointer-events: none;
+  }
+  #s01 .bg-lines {
+    position: absolute;
+    inset: 0;
+    background-image:
+      repeating-conic-gradient(from 0deg at 110% 50%,
+        transparent 0deg, transparent 8deg,
+        rgba(255,255,255,0.12) 8deg, rgba(255,255,255,0.12) 9deg);
+    pointer-events: none;
+  }
+  #s01 nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative; z-index: 1;
+  }
+  #s01 .logo {
+    display: flex; align-items: center; gap: 16px;
+    font-size: 28px; font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--black);
+  }
+  #s01 .logo svg { width: 36px; height: 20px; }
+  #s01 .hero-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative; z-index: 1;
+    margin-top: -20px;
+  }
+  #s01 h1 {
+    font-size: clamp(56px, 7vw, 96px);
+    font-weight: 800;
+    line-height: 0.95;
+    color: var(--black);
+    letter-spacing: -2px;
+  }
+  #s01 .subtitle {
+    margin-top: 36px;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: rgba(0,0,0,0.7);
+    max-width: 600px;
+  }
+  #s01 .footer-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-top: 1px solid rgba(0,0,0,0.15);
+    padding-top: 24px;
+    position: relative; z-index: 1;
+  }
+  #s01 .footer-strip .label { font-size: 10px; font-weight: 500; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.5; margin-bottom: 8px; }
+  #s01 .footer-strip .val { font-size: 16px; font-weight: 700; color: var(--black); }
+
+  /* ─────────────────────────────────────────
+     SLIDE 02 — Table of Contents
+  ───────────────────────────────────────── */
+  #s02 {
+    background: var(--white);
+    padding: 48px 80px;
+  }
+  #s02 .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 100%;
+    gap: 80px;
+    align-items: end;
+  }
+  #s02 .big-title {
+    font-size: clamp(56px, 6vw, 80px);
+    font-weight: 800;
+    line-height: 1.0;
+    letter-spacing: -2px;
+    color: var(--black);
+    align-self: end;
+    padding-bottom: 60px;
+  }
+  #s02 .big-title em { color: var(--yellow); font-style: normal; }
+  #s02 .toc-panel {
+    background: var(--dark);
+    border-radius: 20px;
+    padding: 48px 56px;
+    height: 88%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
+  }
+  #s02 .toc-item {
+    display: grid;
+    grid-template-columns: 140px 1fr auto;
+    align-items: center;
+    padding: 22px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    gap: 16px;
+  }
+  #s02 .toc-item:last-child { border-bottom: none; }
+  #s02 .toc-pill {
+    font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 90px;
+    padding: 8px 16px;
+    color: var(--white);
+    width: fit-content;
+  }
+  #s02 .toc-name { font-size: 18px; font-weight: 600; color: var(--white); }
+  #s02 .toc-num { font-size: 13px; color: rgba(255,255,255,0.35); font-weight: 500; }
+
+  /* ─────────────────────────────────────────
+     SLIDE 03,05,07,09,11,13 — Section dividers
+  ───────────────────────────────────────── */
+  .slide-section {
+    background: var(--dark);
+    padding: 48px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .slide-section .section-num {
+    position: absolute;
+    right: 60px; top: 40px;
+    font-size: clamp(180px, 18vw, 280px);
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1;
+    letter-spacing: -10px;
+    pointer-events: none;
+    opacity: 0.12;
+  }
+  .slide-section .section-num.visible { opacity: 1; }
+  .slide-section .section-content {
+    position: absolute;
+    bottom: 80px;
+    left: 80px;
+    right: 500px;
+  }
+  .slide-section h2 {
+    font-size: clamp(52px, 6vw, 80px);
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.0;
+    letter-spacing: -2px;
+  }
+  .slide-section .section-desc {
+    position: absolute;
+    bottom: 100px;
+    right: 80px;
+    width: 320px;
+    font-size: 16px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.7);
+  }
+  .slide-section .copy { color: rgba(255,255,255,0.4); }
+
+  /* ─── section bg patterns ─── */
+  .sec-bg-1 { background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%); }
+  .sec-bg-1::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(255,205,17,0.08) 0%, transparent 70%);
+  }
+  .sec-bg-2 { background: linear-gradient(160deg, #111 0%, #000 100%); }
+  .sec-bg-2::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 90% 70% at 55% 45%, rgba(255,205,17,0.06) 0%, transparent 60%);
+  }
+
+  /* ─────────────────────────────────────────
+     SLIDE 04 — About Company
+  ───────────────────────────────────────── */
+  #s04 {
+    background: var(--white);
+    padding: 48px 80px;
+  }
+  #s04 .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    height: 100%;
+    gap: 80px;
+    align-items: center;
+  }
+  #s04 .left h2 {
+    font-size: clamp(32px, 3.5vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    color: var(--yellow);
+    margin-bottom: 32px;
+  }
+  #s04 .left p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--gray-md);
+    margin-bottom: 16px;
+  }
+  #s04 .stats { display: flex; flex-direction: column; gap: 16px; }
+  #s04 .stat-card {
+    background: var(--gray-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    transition: transform 0.2s;
+  }
+  #s04 .stat-card:last-child { background: var(--yellow); }
+  #s04 .stat-card .img-ph {
+    width: 140px; height: 80px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.08);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: rgba(0,0,0,0.3); text-transform: uppercase; letter-spacing: 1px;
+  }
+  #s04 .stat-card .stat-val { font-size: 40px; font-weight: 800; letter-spacing: -1px; color: var(--black); }
+  #s04 .stat-card .stat-label { font-size: 13px; font-weight: 500; color: rgba(0,0,0,0.5); margin-top: 4px; }
+
+  /* ─────────────────────────────────────────
+     SLIDE 06 — Values
+  ───────────────────────────────────────── */
+  #s06 {
+    background: var(--white);
+    padding: 48px 80px;
+  }
+  #s06 h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; color: var(--black); margin: 24px 0 32px; }
+  #s06 .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto;
+    gap: 12px;
+    flex: 1;
+  }
+  #s06 .grid .v-card:nth-child(4) { grid-column: span 1; }
+  #s06 .grid .v-card:nth-child(4),
+  #s06 .grid .v-card:nth-child(5) { }
+  .v-card {
+    border-radius: 12px;
+    padding: 28px 28px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .v-card.dark { background: var(--dark); }
+  .v-card.gray { background: var(--gray-bg); }
+  .v-card.yellow { background: var(--yellow); }
+  .v-card .num { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4); }
+  .v-card.gray .num, .v-card.yellow .num { color: rgba(0,0,0,0.35); }
+  .v-card .title { font-size: 20px; font-weight: 700; color: var(--white); margin-top: auto; }
+  .v-card.gray .title { color: var(--black); }
+  .v-card.yellow .title { color: var(--black); }
+  .v-card .desc { font-size: 14px; line-height: 1.55; color: rgba(255,255,255,0.65); }
+  .v-card.gray .desc { color: var(--gray-md); }
+  .v-card.yellow .desc { color: rgba(0,0,0,0.65); }
+
+  /* ─────────────────────────────────────────
+     SLIDE 08 — Conditions
+  ───────────────────────────────────────── */
+  #s08 {
+    background: var(--white);
+    padding: 48px 80px;
+  }
+  #s08 h2 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; color: var(--black); margin: 24px 0 32px; }
+  #s08 .bento {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    flex: 1;
+  }
+  #s08 .b-card {
+    border-radius: 12px;
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  #s08 .b-card.gray { background: var(--gray-bg); }
+  #s08 .b-card.dark { background: var(--dark); }
+  #s08 .b-card.yellow { background: var(--yellow); }
+  #s08 .b-card .bnum { font-size: 12px; font-weight: 600; color: rgba(0,0,0,0.3); }
+  #s08 .b-card.dark .bnum { color: rgba(255,255,255,0.3); }
+  #s08 .b-card.yellow .bnum { color: rgba(0,0,0,0.45); }
+  #s08 .b-card .btitle { font-size: 22px; font-weight: 700; color: var(--black); margin-top: auto; }
+  #s08 .b-card.dark .btitle { color: var(--white); }
+  #s08 .b-card.yellow .btitle { color: var(--black); }
+  #s08 .b-card .bdesc { font-size: 14px; line-height: 1.55; color: var(--gray-md); margin-top: 8px; }
+  #s08 .b-card.dark .bdesc { color: rgba(255,255,255,0.55); }
+  #s08 .b-card.yellow .bdesc { color: rgba(0,0,0,0.6); }
+  #s08 .row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  #s08 .bento-wrap {
+    display: flex; flex-direction: column; gap: 12px; flex: 1;
+  }
+
+  /* ─────────────────────────────────────────
+     SLIDE 10 — Test Drive
+  ───────────────────────────────────────── */
+  #s10 {
+    background: var(--white);
+    padding: 48px 80px;
+  }
+  #s10 .big1 {
+    font-size: clamp(140px, 15vw, 220px);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -6px;
+    color: var(--black);
+    position: absolute;
+    left: 80px; top: 120px;
+    opacity: 0.08;
+  }
+  #s10 .tag { margin-top: 0; position: relative; z-index: 1; }
+  #s10 .headline {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--black);
+    position: absolute;
+    top: 280px; left: 260px;
+    z-index: 1;
+  }
+  #s10 .three-cols {
+    position: absolute;
+    bottom: 40px; left: 80px; right: 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    height: 56%;
+  }
+  #s10 .col-card {
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 32px;
+  }
+  #s10 .col-card.photo { background: linear-gradient(160deg, #2a2a1a 0%, #1a1208 100%); }
+  #s10 .col-card.yellow-card { background: var(--yellow); }
+  #s10 .col-card.dark-card { background: var(--dark); }
+  #s10 .col-card h3 { font-size: 22px; font-weight: 700; color: var(--white); margin-bottom: 12px; }
+  #s10 .col-card.yellow-card h3 { color: var(--black); }
+  #s10 .col-card p { font-size: 14px; line-height: 1.55; color: rgba(255,255,255,0.7); }
+  #s10 .col-card.yellow-card p { color: rgba(0,0,0,0.65); }
+
+  /* ─────────────────────────────────────────
+     SLIDE 12 — Rhythm & Vibe
+  ───────────────────────────────────────── */
+  #s12 {
+    background: var(--dark);
+    padding: 48px 80px;
+  }
+  #s12 h2 { font-size: 32px; font-weight: 700; color: var(--white); letter-spacing: -0.5px; margin: 24px 0 28px; }
+  #s12 .grid5 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    flex: 1;
+  }
+  #s12 .grid5 .r-card:nth-child(4) { grid-column: span 1; }
+  #s12 .grid5 .r-card:nth-child(5) { grid-column: span 2; }
+  .r-card {
+    border-radius: 12px;
+    padding: 28px 28px 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .r-card.yellow { background: var(--yellow); }
+  .r-card.dgray { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); }
+  .r-card .rnum { font-size: 12px; font-weight: 600; color: rgba(0,0,0,0.35); }
+  .r-card.dgray .rnum { color: rgba(255,255,255,0.3); }
+  .r-card .rtitle { font-size: 22px; font-weight: 700; color: var(--black); }
+  .r-card.dgray .rtitle { color: var(--white); }
+  .r-card .rdesc { font-size: 14px; line-height: 1.55; color: rgba(0,0,0,0.65); margin-top: 8px; }
+  .r-card.dgray .rdesc { color: rgba(255,255,255,0.55); }
+
+  /* ─────────────────────────────────────────
+     SLIDE 14 — Team
+  ───────────────────────────────────────── */
+  #s14 {
+    background: var(--white);
+    padding: 48px 80px;
+  }
+  #s14 h2 {
+    font-size: 28px; font-weight: 700; letter-spacing: -0.5px;
+    color: var(--yellow); margin: 24px 0 28px;
+  }
+  #s14 .team-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr) 320px;
+    grid-template-rows: 1fr 1fr;
+    gap: 12px;
+    flex: 1;
+  }
+  #s14 .team-grid .t-card:nth-child(4) { grid-row: span 2; }
+  .t-card {
+    border-radius: 12px;
+    padding: 24px 24px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+    background: var(--gray-bg);
+  }
+  .t-card.dark { background: var(--dark); }
+  .t-card.yellow { background: var(--yellow); align-items: flex-start; text-align: left; }
+  .t-card .avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+  .t-card.dark .avatar { background: rgba(255,255,255,0.08); }
+  .t-card .tname { font-size: 16px; font-weight: 700; color: var(--black); }
+  .t-card.dark .tname { color: var(--white); }
+  .t-card.yellow .tname { color: var(--black); font-size: 18px; }
+  .t-card .trole { font-size: 13px; color: var(--gray-md); line-height: 1.5; }
+  .t-card.dark .trole { color: rgba(255,255,255,0.55); }
+  .t-card.yellow .trole { color: rgba(0,0,0,0.65); }
+  .t-card .group-avatars { display: flex; gap: -8px; }
+  .t-card .group-avatars .mini {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(0,0,0,0.1); border: 2px solid #fff;
+    margin-left: -8px; overflow: hidden;
+  }
+  .t-card .group-avatars .mini:first-child { margin-left: 0; }
+
+  /* ─────────────────────────────────────────
+     SLIDE 15 — Ending
+  ───────────────────────────────────────── */
+  #s15 {
+    background: var(--yellow);
+    padding: 40px 80px;
+    overflow: hidden;
+  }
+  #s15 .bg-lines {
+    position: absolute;
+    inset: 0;
+    background-image: repeating-conic-gradient(from 0deg at 50% 80%,
+      transparent 0deg, transparent 8deg,
+      rgba(255,255,255,0.14) 8deg, rgba(255,255,255,0.14) 9deg);
+    pointer-events: none;
+  }
+  #s15 nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative; z-index: 1;
+  }
+  #s15 .center-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative; z-index: 1;
+    text-align: center;
+  }
+  #s15 h1 {
+    font-size: clamp(80px, 10vw, 140px);
+    font-weight: 900;
+    letter-spacing: -4px;
+    color: var(--black);
+    line-height: 1;
+  }
+  #s15 .sub {
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: rgba(0,0,0,0.7);
+    margin-top: 28px;
+    max-width: 700px;
+  }
+  #s15 .footer-copy {
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgba(0,0,0,0.4);
+    position: relative; z-index: 1;
+    font-weight: 500;
+  }
+
+  /* ── Navigation ── */
+  #nav {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(15,16,19,0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 100px;
+    padding: 12px 20px;
+    z-index: 100;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  #nav button {
+    background: none; border: none;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+    font-size: 18px;
+  }
+  #nav button:hover { background: rgba(255,255,255,0.1); }
+  #nav button:disabled { opacity: 0.3; cursor: default; }
+  #counter {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--white);
+    min-width: 60px;
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+  .dots {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .dot.active {
+    background: var(--yellow);
+    width: 20px;
+    border-radius: 3px;
+  }
+
+  /* ── Keyboard hint ── */
+  #hint {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 1px;
+    z-index: 100;
+    pointer-events: none;
+    animation: hintFade 3s 1s both;
+  }
+  @keyframes hintFade {
+    0%  { opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* ── Flex helpers ── */
+  .flex-col { display: flex; flex-direction: column; height: 100%; }
+  .flex-1 { flex: 1; }
+</style>
+</head>
+<body>
+
+<div id="deck">
+
+  <!-- SLIDE 01 — Cover -->
+  <div class="slide active" id="s01">
+    <div class="bg-shape"></div>
+    <div class="bg-lines"></div>
+    <nav class="anim">
+      <div class="logo">
+        <svg viewBox="0 0 36 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="36" height="20" rx="4" fill="#0F1013"/>
+          <path d="M6 14l3-8 3 6 3-6 3 8" stroke="#FFCD11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="26" cy="10" r="4" stroke="#FFCD11" stroke-width="1.5"/>
+        </svg>
+        WINCARS
+        <span class="pill pill-dark" style="font-size:10px; padding:8px 18px;">ONBOARDING</span>
+      </div>
+      <span class="pill pill-dark" style="font-size:11px;">ДЛЯ НОВЫХ СОТРУДНИКОВ</span>
+    </nav>
+    <div class="hero-text">
+      <h1 class="anim">Привет!<br>Добро пожаловать<br>в команду</h1>
+      <p class="subtitle anim">Этот документ — твой главный проводник по нашей атмосфере,<br>правилам и внутреннему коду Wincars. Пристегни ремни, погнали!</p>
+    </div>
+    <div class="footer-strip anim">
+      <div>
+        <div class="label">Компания</div>
+        <div class="val">Wincars Sp. z o.o.</div>
+      </div>
+      <div>
+        <div class="label">Основано</div>
+        <div class="val">2022 год</div>
+      </div>
+      <div>
+        <div class="label">География</div>
+        <div class="val">Польша · Болгария · Румыния · Молдова · Сальвадор</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 02 — Table of Contents -->
+  <div class="slide" id="s02">
+    <div class="flex-col" style="padding:48px 80px; height:100%;">
+      <div class="layout flex-1">
+        <div class="big-title anim">Содержание<br><em>онбординга</em></div>
+        <div class="toc-panel anim">
+          <div class="toc-item"><span class="toc-pill">SECTION 1</span><span class="toc-name">Кто мы такие</span><span class="toc-num">(01)</span></div>
+          <div class="toc-item"><span class="toc-pill">SECTION 2</span><span class="toc-name">Ценности Wincars</span><span class="toc-num">(02)</span></div>
+          <div class="toc-item"><span class="toc-pill">SECTION 3</span><span class="toc-name">Условия и соцпакет</span><span class="toc-num">(03)</span></div>
+          <div class="toc-item"><span class="toc-pill">SECTION 4</span><span class="toc-name">Первый месяц: Тест-драйв</span><span class="toc-num">(04)</span></div>
+          <div class="toc-item"><span class="toc-pill">SECTION 5</span><span class="toc-name">Ритм, дисциплина и вайб</span><span class="toc-num">(05)</span></div>
+          <div class="toc-item"><span class="toc-pill">SECTION 6</span><span class="toc-name">Команда и структура</span><span class="toc-num">(06)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 03 — Section 1 -->
+  <div class="slide slide-section sec-bg-1" id="s03">
+    <span class="pill pill-white anim" style="position:absolute;top:48px;left:80px;z-index:2;">SECTION 1</span>
+    <span class="copy">© 2026 WINCARS. ВСЕ ПРАВА ЗАЩИЩЕНЫ</span>
+    <div class="section-num visible anim">01</div>
+    <div class="section-content">
+      <h2 class="anim">Кто мы<br>такие ↘</h2>
+    </div>
+    <div class="section-desc anim">Wincars — международная компания, основанная в 2022 году. Мы импортируем автомобили из США, Канады и Южной Кореи и строим команду, которой гордимся.</div>
+  </div>
+
+  <!-- SLIDE 04 — About Company -->
+  <div class="slide" id="s04">
+    <div class="flex-col" style="padding:48px 80px; height:100%;">
+      <div style="display:flex;align-items:center;justify-content:space-between;" class="anim">
+        <span class="pill pill-dark">О КОМПАНИИ</span>
+        <span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(0,0,0,0.35);font-weight:500;">© 2026 WINCARS. ВСЕ ПРАВА ЗАЩИЩЕНЫ</span>
+      </div>
+      <div class="layout flex-1" style="margin-top:0;">
+        <div class="left anim">
+          <h2>Мы меняем правила игры на вторичном рынке</h2>
+          <p>Wincars — международная компания, основанная в 2022 году, которая занимается импортом автомобилей из США, Канады и Южной Кореи. Мы активно растём и развиваемся, открывая филиалы по всему миру.</p>
+          <p>Наша цель — стереть границу между покупкой б/у авто и выездом из премиального автосалона, окружая каждого клиента безупречным сервисом и заботой.</p>
+        </div>
+        <div class="stats anim">
+          <div class="stat-card">
+            <div class="img-ph">фото офиса</div>
+            <div><div class="stat-val">2022</div><div class="stat-label">год основания</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="img-ph">карта</div>
+            <div><div class="stat-val">5 стран</div><div class="stat-label">с филиалами</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="img-ph">здание</div>
+            <div><div class="stat-val">3 офиса</div><div class="stat-label">в Варшаве</div></div>
+          </div>
+          <div class="stat-card">
+            <div class="img-ph" style="background:rgba(0,0,0,0.12);">склад</div>
+            <div><div class="stat-val">USA / CA / KR</div><div class="stat-label">источники авто</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 05 — Section 2 -->
+  <div class="slide slide-section sec-bg-2" id="s05">
+    <span class="pill pill-white anim" style="position:absolute;top:48px;left:80px;z-index:2;">SECTION 2</span>
+    <span class="copy">© 2026 WINCARS. ВСЕ ПРАВА ЗАЩИЩЕНЫ</span>
+    <div class="section-num visible anim">02</div>
+    <div class="section-content">
+      <h2 class="anim">Ценности<br>Wincars ↘</h2>
+    </div>
+    <div class="section-desc anim">Мы не просто доставляем автомобили. Мы создаём компанию, которой гордимся — и вот четыре столпа, на которых держится всё, что мы делаем.</div>
+  </div>
+
+  <!-- SLIDE 06 — Values -->
+  <div class="slide flex-col" id="s06">
+    <div style="padding:48px 80px 0; display:flex; align-items:center; justify-content:space-between;" class="anim">
+      <span class="pill pill-dark">НАША ДНК</span>
+      <span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(0,0,0,0.35);font-weight:500;">© 2026 WINCARS. ВСЕ ПРАВА ЗАЩИЩЕНЫ</span>
+    </div>
+    <h2 class="anim" style="padding:0 80px;">Пять принципов, на которых держится Wincars</h2>
+    <div class="grid flex-1 anim" style="padding:0 80px 48px; display:grid; grid-template-columns: repeat(3,1fr); grid-template-rows:1fr 1fr; gap:12px;">
+      <div class="v-card dark">
+        <span class="num">(01) ↗</span>
+        <div class="title">Открытость</div>
+        <div class="desc">Работаем честно и «в белую». Все условия и тарифы абсолютно прозрачны. Платим налоги и выполняем обязательства перед клиентами, партнёрами, государством и командой.</div>
+      </div>
+      <div class="v-card gray">
+        <span class="num">(02) ↗</span>
+        <div class="title">Постоянное развитие</div>
+        <div class="desc">Wincars всегда в движении. Внедряем новые решения, учимся у лучших и поддерживаем тех, кто предлагает и пробует. Инвестируем в технологии, сервис и команду.</div>
+      </div>
+      <div class="v-card gray">
+        <span class="num">(03) ↗</span>
+        <div class="title">Клиент в центре</div>
+        <div class="desc">Создаём сервис, который хочется рекомендовать друзьям. Думаем не только о том, что делаем, но и как — с заботой о деталях и стремлением превзойти ожидания.</div>
+      </div>
+      <div class="v-card yellow" style="grid-column: span 1;">
+        <span class="num">(04)</span>
+        <div class="title">Командный дух</div>
+        <div class="desc">У каждого своя зона ответственности, но за спиной всегда команда, готовая помочь. Ценим инициативу, но особенно — умение играть вместе.</div>
+      </div>
+      <div class="v-card dark" style="grid-column: span 2;">
+        <span class="num">(05) ↗</span>
+        <div class="title">Проактивность и креативность</div>
+        <div class="desc">Мы не ждём, пока мир изменится — мы меняем его сами. Видишь, как сделать процесс проще, сервис круче, а результат мощнее — предлагай и создавай!</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 07 — Section 3 -->
+  <div class="slide slide-section sec-bg-1" id="s07">
+    <span class="pill pill-white anim" style="position:absolute;top:48px;left:80px;z-index:2;">SECTION 3</span>
+    <span class="copy">© 2026 WINCARS. ВСЕ ПРАВА ЗАЩИЩЕНЫ</span>
+    <div class="section-num visible anim">03</div>
+    <div class="section-content">
+      <h2 class="anim">Условия ↘<br>и соцпакет</h2>
+    </div>
+    <div class="section-desc anim">Заботимся о том, чтобы тебе было максимально комфортно: официальное оформление, оплачиваемый отпуск, полное техническое обеспечение и прозрачная мотивация.</div>
+  </div>
+
+  <!-- SLIDE 08 — Conditions -->
+  <div class="slide flex-col" id="s08">
+    <div style="padding:48px 80px 0; display:flex; align-items:center; justify-content:space-between;" class="anim">
+      <span class="pill pill-dark">ТВОИ УСЛОВИЯ</span>
+      <span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(0,0,0,0.35);font-weight:500;">© 2026 WINCARS. ВСЕ ПРАВА ЗАЩИЩЕНЫ</span>
+    </div>
+    <h2 class="anim" style="padding:0 80px;">Комфорт, стабильность и забота</h2>
+    <div class="bento-wrap anim" style="padding:0 80px 48px; flex:1;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; flex:1; height:calc(50% - 6px);">
+        <div class="b-card gray">
+          <span class="bnum">(01) ↘</span>
+          <div>
+            <div class="btitle">Защищённость и стабильность</div>
+            <div class="bdesc">Официальное оформление, полностью оплачиваемый отпуск и больничный. Отпуск — это святое, мы всегда даём отдохнуть.</div>
+          </div>
+        </div>
+        <div class="b-card gray">
+          <span class="bnum">(02) ↘</span>
+          <div>
+            <div class="btitle">Полное обеспечение</div>
+            <div class="bdesc">Предоставляем весь необходимый инструмент — корпоративный компьютер, мобильный телефон, а также стильный фирменный мерч компании.</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px; flex:1; height:calc(50% - 6px); margin-top:12px;">
+        <div class="b-card yellow">
+          <span class="bnum" style="color:rgba(0,0,0,0.45);">(04) ↗</span>
+          <div>
+            <div class="btitle" style="color:var(--black);">Локация — 3 офиса в Варшаве</div>
+            <div class="bdesc" style="color:rgba(0,0,0,0.6);">Wola al. Solidarności 163/lok. u010; Mokotów Fort Piłsudskiego 26; Mokotów Fort Piłsudskiego 2.</div>
+          </div>
+        </div>
+        <div class="b-card dark">
+          <span class="bnum" style="color:rgba(255,255,255,0.3);">(04) ↗</span>
+          <div>
+            <div class="btitle" style="color:var(--white);">График работы</div>
+            <div class="bdesc" style="color:rgba(255,255,255,0.55);">Понедельник – пятница, с 10:00 до 18:00. Будь готов, что клиенты могут звонить до и после 18:00.</div>
+          </div>
+        </div>
+        <div class="b-card dark">
+          <span class="bnum" style="color:rgba(255,255,255,0.3);">(05) ↗</span>
+          <div>
+            <div class="btitle" style="color:var(--white);">Забота в офисе</div>
+            <div class="bdesc" style="color:rgba(255,255,255,0.55);">Вкусный кофе, чай и сладости всегда в твоём распоряжении.</div>
+          </div>
+        </div>
+        <div class="b-card dark">
+          <span class="bnum" style="color:rgba(255,255,255,0.3);">(06) ↗</span>
+          <div>
+            <div class="btitle" style="color:var(--white);">Система мотивации</div>
+            <div class="bdesc" style="color:rgba(255,255,255,0.55);">Прозрачная система мотивации и дополнительные бонусы за отличные результаты.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 09 — Section 4 -->
+  <div class="slide slide-section sec-bg-2" id="s09">
+    <span class="pill pill-white anim" style="position:absolute;top:48px;left:80px;z-index:2;">SECTION 4</span>
+    <span class="copy">© 2026 WINCARS. ВСЕ ПРАВА ЗАЩИЩЕНЫ</span>
+    <div class="section-num visible anim">04</div>
+    <div class="section-content">
+      <h2 class="anim">Первый месяц:<br>тест-драйв ↘</h2>
+    </div>
+    <div class="section-desc anim">Испытательный срок длится 1 месяц — время, чтобы мы присмотрелись друг к другу, а ты понял, что Wincars — это твоё место силы.</div>
+  </div>
+
+  <!-- SLIDE 10 — Test Drive Details -->
+  <div class="slide flex-col" id="s10">
+    <div style="padding:48px 80px 0; display:flex; align-items:center; justify-content:space-between;" class="anim">
+      <span class="pill pill-dark">ИСПЫТАТЕЛЬНЫЙ СРОК</span>
+      <span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(0,0,0,0.35);font-weight:500;">© 2026 WINCARS. ВСЕ ПРАВА ЗАЩИЩЕНЫ</span>
+    </div>
+    <div style="padding: 16px 80px 0; position:relative; flex:0 0 auto;" class="anim">
+      <span style="font-size:clamp(140px,15vw,180px); font-weight:900; line-height:1; letter-spacing:-6px; color:var(--black); opacity:0.07; position:absolute; left:60px; top:-10px; pointer-events:none; user-select:none;">1</span>
+      <span style="font-size:20px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--black); position:relative; z-index:1; display:block; padding-left:160px; padding-top:8px;">МЕСЯЦ — ТВОЙ ТЕСТ-ДРАЙВ</span>
+    </div>
+    <div class="anim" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; padding:24px 80px 48px; flex:1;">
+      <div style="border-radius:12px; background:linear-gradient(160deg,#2a2010 0%,#1a1008 100%); overflow:hidden; display:flex; flex-direction:column; justify-content:flex-end; padding:32px;">
+        <div style="font-size:12px;font-weight:600;color:rgba(255,205,17,0.5);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;">(01)</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.4);font-style:italic; flex:1; display:flex; align-items:center; justify-content:center; font-size:48px;">🏎</div>
+        <div style="font-size:16px;font-weight:600;color:var(--white);">Тест в деле</div>
+      </div>
+      <div style="border-radius:12px; background:var(--yellow); padding:32px; display:flex; flex-direction:column; justify-content:flex-end;">
+        <div style="font-size:12px;font-weight:600;color:rgba(0,0,0,0.4);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;">(02)</div>
+        <div style="font-size:22px; font-weight:700; color:var(--black); margin-bottom:12px;">Первые две недели — обучение</div>
+        <div style="font-size:14px; line-height:1.55; color:rgba(0,0,0,0.65);">Время активного погружения. Ты будешь плотно учиться у коллег и получишь нашу фирменную методичку — выжимку важных знаний, процессов и лайфхаков.</div>
+      </div>
+      <div style="border-radius:12px; background:var(--dark); padding:32px; display:flex; flex-direction:column; justify-content:flex-end;">
+        <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;">(03)</div>
+        <div style="font-size:22px; font-weight:700; color:var(--white); margin-bottom:12px;">Юридическая безопасность — NDA</div>
+        <div style="font-size:14px; line-height:1.55; color:rgba(255,255,255,0.6);">После успешного прохождения испытательного срока ты получишь на подпись документ о неразглашении (NDA). Так мы юридически защищаем коммерческие данные компании.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 11 — Section 5 -->
+  <div class="slide slide-section sec-bg-2" id="s11">
+    <span class="pill pill-white anim" style="position:absolute;top:48px;left:80px;z-index:2;">SECTION 5</span>
+    <span class="copy">© 2026 WINCARS. ВСЕ ПРАВА ЗАЩИЩЕНЫ</span>
+    <div class="section-num visible anim">05</div>
+    <div class="section-content">
+      <h2 class="anim">Ритм, ↘<br>дисциплина<br>и вайб</h2>
+    </div>
+    <div class="section-desc anim">Чтобы вся большая система Wincars работала как швейцарские часы, мы придерживаемся простых правил — и умеем отдыхать на максималках.</div>
+  </div>
+
+  <!-- SLIDE 12 — Rhythm & Vibe -->
+  <div class="slide flex-col" id="s12">
+    <div style="padding:48px 80px 0; display:flex; align-items:center; justify-content:space-between;" class="anim">
+      <span class="pill pill-white">РИТМ И КОРПОРАТИВНЫЙ ВАЙБ</span>
+      <span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.3);font-weight:500;">© 2026 WINCARS. ВСЕ ПРАВА ЗАЩИЩЕНЫ</span>
+    </div>
+    <h2 class="anim" style="padding:0 80px;">Работаем чётко. Отдыхаем на полную.</h2>
+    <div class="anim" style="display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:1fr 1fr; gap:12px; padding:0 80px 48px; flex:1;">
+      <div class="r-card yellow">
+        <span class="rnum">(01) ↗</span>
+        <div>
+          <div class="rtitle">Пунктуальность</div>
+          <div class="rdesc" style="color:rgba(0,0,0,0.65);">Опоздания без предупреждения лидера заранее — недопустимы. Мы глубоко ценим время друг друга.</div>
+        </div>
+      </div>
+      <div class="r-card dgray">
+        <span class="rnum">(02) ↗</span>
+        <div>
+          <div class="rtitle">Старт дня</div>
+          <div class="rdesc">Каждое утро начинается с общего сбора команды: планёрка, чтобы свериться по планам на день, и обязательная зарядка — заряжаем тело и мозг на продуктивный день.</div>
+        </div>
+      </div>
+      <div class="r-card dgray">
+        <span class="rnum">(03) ↗</span>
+        <div>
+          <div class="rtitle">Перезагрузка в обед</div>
+          <div class="rdesc">Прямо в офисе можно круто разгрузить голову — настольный теннис и PlayStation. Присоединяйся к баттлам!</div>
+        </div>
+      </div>
+      <div class="r-card dgray">
+        <span class="rnum">(04) ↗</span>
+        <div>
+          <div class="rtitle">Питание</div>
+          <div class="rdesc">Когда вся команда выполняет недельный план — бесплатные обеды за счёт компании. Приятно и отлично мотивирует.</div>
+        </div>
+      </div>
+      <div class="r-card yellow" style="grid-column:span 2;">
+        <span class="rnum">(05) ↗</span>
+        <div>
+          <div class="rtitle">Развлечения</div>
+          <div class="rdesc" style="color:rgba(0,0,0,0.65);">За крутые результаты вознаграждаем себя совместными приключениями: дрифт, пейнтбол, барбекю, поездки на Мазуры или в Закопане, посещение выставок и событий.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 13 — Section 6 -->
+  <div class="slide slide-section sec-bg-1" id="s13">
+    <span class="pill pill-white anim" style="position:absolute;top:48px;left:80px;z-index:2;">SECTION 6</span>
+    <span class="copy">© 2026 WINCARS. ВСЕ ПРАВА ЗАЩИЩЕНЫ</span>
+    <div class="section-num visible anim">06</div>
+    <div class="section-content">
+      <h2 class="anim">Команда ↘<br>и порядок</h2>
+    </div>
+    <div class="section-desc anim">В Wincars нет глухих стен между кабинетами — мы все общаемся на «ты». А ещё наш офис — это наш второй дом, поэтому порядок и чистота важны для каждого из нас.</div>
+  </div>
+
+  <!-- SLIDE 14 — Team -->
+  <div class="slide flex-col" id="s14">
+    <div style="padding:48px 80px 0; display:flex; align-items:center; justify-content:space-between;" class="anim">
+      <span class="pill pill-dark">КТО ЕСТЬ КТО</span>
+      <span style="font-size:10px;letter-spacing:1px;text-transform:uppercase;color:rgba(0,0,0,0.35);font-weight:500;">© 2026 WINCARS. ВСЕ ПРАВА ЗАЩИЩЕНЫ</span>
+    </div>
+    <h2 class="anim" style="padding:0 80px;">Люди, с которыми ты будешь постоянно пересекаться</h2>
+    <div class="anim" style="display:grid; grid-template-columns:repeat(3,1fr) 300px; grid-template-rows:1fr 1fr; gap:12px; padding:0 80px 48px; flex:1;">
+      <div class="t-card">
+        <div class="avatar">👤</div>
+        <div class="tname">Твой Лидер</div>
+        <div class="trole">Главный ментор, наставник и первый человек, к которому идти с любым вопросом.</div>
+      </div>
+      <div class="t-card">
+        <div class="avatar">👤</div>
+        <div class="tname">Ваня — CEO</div>
+        <div class="trole">Руководитель компании, определяющий глобальную стратегию развития Wincars и подписывающий ключевые документы.</div>
+      </div>
+      <div class="t-card">
+        <div class="avatar" style="background:rgba(255,205,17,0.15);">👩</div>
+        <div class="tname">Женя — маркетинг-директор</div>
+        <div class="trole">Отвечает за стратегию бренда, имидж компании, рекламу и привлечение клиентов.</div>
+      </div>
+      <!-- Yellow card spans 2 rows -->
+      <div class="t-card yellow" style="grid-row:span 2; align-items:flex-start;">
+        <div style="font-size:20px;font-weight:700;color:var(--black);">Чистота и уважение</div>
+        <div style="display:flex;flex-direction:column;gap:16px;margin-top:16px;">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--black);">Бережливость</div>
+            <div style="font-size:13px;line-height:1.5;color:rgba(0,0,0,0.65);margin-top:4px;">Аккуратно относимся к вещам компании — от рабочего стола до общих зон.</div>
+          </div>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--black);">Чистота</div>
+            <div style="font-size:13px;line-height:1.5;color:rgba(0,0,0,0.65);margin-top:4px;">Есть очередь на дежурство в офисе, но каждый поддерживает порядок на своём уровне — это базовое уважение к коллегам.</div>
+          </div>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--black);">Библиотека</div>
+            <div style="font-size:13px;line-height:1.5;color:rgba(0,0,0,0.65);margin-top:4px;">Крутая внутренняя библиотека для развития. Не держи книгу дольше недели — она нужна другим.</div>
+          </div>
+        </div>
+      </div>
+      <div class="t-card">
+        <div class="avatar">👤</div>
+        <div class="tname">Лиза — SMM</div>
+        <div class="trole">Ведёт социальные сети компании, создаёт яркий контент и общается с аудиторией бренда.</div>
+      </div>
+      <div class="t-card dark">
+        <div class="avatar">👤</div>
+        <div class="tname">Дима — афтер-сейл</div>
+        <div class="trole">Заботится о клиентах после сделки, решает спорные моменты и собирает отзывы о работе.</div>
+      </div>
+      <div class="t-card dark">
+        <div style="display:flex;gap:-4px;margin-bottom:4px;">
+          <div class="avatar" style="width:44px;height:44px;font-size:16px;">👤</div>
+          <div class="avatar" style="width:44px;height:44px;font-size:16px;margin-left:-8px;">👤</div>
+          <div class="avatar" style="width:44px;height:44px;font-size:16px;margin-left:-8px;">👤</div>
+        </div>
+        <div class="tname">Команда менеджеров по продажам</div>
+        <div class="trole">Твои дружелюбные коллеги, всегда готовые подсказать по рабочим процессам и офисному быту.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 15 — Ending -->
+  <div class="slide" id="s15">
+    <div class="bg-lines"></div>
+    <nav class="anim">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <svg width="36" height="20" viewBox="0 0 36 20" fill="none">
+          <rect width="36" height="20" rx="4" fill="#0F1013"/>
+          <path d="M6 14l3-8 3 6 3-6 3 8" stroke="#FFCD11" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="26" cy="10" r="4" stroke="#FFCD11" stroke-width="1.5"/>
+        </svg>
+        <span style="font-size:24px;font-weight:800;color:var(--black);letter-spacing:-0.5px;">WINCARS</span>
+        <span class="pill pill-dark" style="font-size:10px;padding:8px 18px;">ONBOARDING</span>
+      </div>
+      <span class="pill pill-dark" style="font-size:11px;">ДОБРО ПОЖАЛОВАТЬ НА БОРТ</span>
+    </nav>
+    <div class="center-content">
+      <h1 class="anim">Ты готов?</h1>
+      <p class="sub anim">Мы верим, что у тебя всё получится, и ты быстро станешь своим.<br>Добро пожаловать на борт Wincars — погнали!</p>
+    </div>
+    <p class="footer-copy anim">© 2026 WINCARS. ВСЕ ПРАВА ЗАЩИЩЕНЫ</p>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- Navigation -->
+<div id="nav">
+  <button id="prev" onclick="changeSlide(-1)" disabled>←</button>
+  <div class="dots" id="dots"></div>
+  <span id="counter">1 / 15</span>
+  <button id="next" onclick="changeSlide(1)">→</button>
+</div>
+
+<div id="hint">← → или пробел для перехода · F для полноэкранного</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const dots = document.getElementById('dots');
+  let current = 0;
+  let transitioning = false;
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.onclick = () => goTo(i);
+    dots.appendChild(d);
+  });
+
+  function goTo(index) {
+    if (transitioning || index === current || index < 0 || index >= slides.length) return;
+    transitioning = true;
+
+    const prev = slides[current];
+    const next = slides[index];
+
+    prev.classList.remove('active');
+    prev.classList.add('exit');
+    next.classList.add('active');
+
+    document.querySelectorAll('.dot')[current].classList.remove('active');
+    document.querySelectorAll('.dot')[index].classList.add('active');
+
+    current = index;
+    document.getElementById('counter').textContent = `${current + 1} / ${slides.length}`;
+    document.getElementById('prev').disabled = current === 0;
+    document.getElementById('next').disabled = current === slides.length - 1;
+
+    setTimeout(() => {
+      prev.classList.remove('exit');
+      transitioning = false;
+    }, 750);
+  }
+
+  function changeSlide(dir) { goTo(current + dir); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      changeSlide(1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      changeSlide(-1);
+    } else if (e.key === 'f' || e.key === 'F') {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    }
+  });
+
+  // Swipe support
+  let touchX = 0;
+  document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) changeSlide(dx < 0 ? 1 : -1);
+  });
+</script>
+</body>
+</html>
