@@ -91,11 +91,10 @@ padding and **40px** gaps between bento cards.
 ### Section pill / label component
 
 Onboarding-deck section pills (e.g. "SECTION 1", "ONBOARDING", "О КОМПАНИИ")
-use a **standardized**, non-fully-rounded style — distinct from the
-`radius.full` pill CTAs on the main site:
+use a **standardized**, fully-rounded pill style:
 
-- Padding: **30px horizontal, 23px vertical**
-- Corner radius: **8px**
+- Padding: **30px horizontal, 16px vertical**
+- Corner radius: **90px**
 - Auto-layout frame, single text child, `Inter Semi Bold`, uppercase,
   letter-spacing ~1.5px
 - Built via `use_figma` as an auto-layout frame (`primaryAxisSizingMode`/
