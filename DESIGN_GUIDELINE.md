@@ -4,6 +4,9 @@ Design guideline page created in Figma: https://www.figma.com/design/cVG8QGhFsJz
 
 Page: **Design Guideline** (остання сторінка у файлі)
 
+> Точні значення всіх стилів (кольори, типографіка, сітка, відступи, радіуси, компоненти)
+> зібрані у [STYLE_GUIDE.md](STYLE_GUIDE.md) — це джерело правди щодо чисел.
+
 ## Секції гайдлайну
 
 1. **Brand Colors** — Primary Yellow #FFCD11, Yellow Light #FFDE64, Yellow Dark #E6B800, сіра шкала, білий
