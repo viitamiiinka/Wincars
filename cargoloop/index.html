@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="es-SV">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cargoloop.sv</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Cargoloop: abastecimiento B2B de vehículos desde subastas de EE.UU. y Canadá para concesionarios, flotas y talleres en El Salvador. Un servicio de Wincars.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: harbor-terminal grid. Light "manifest paper" sections alternate with ink bands;
+   one moving element only: the container dot running the loop route in the hero. */
+:root{
+  --ink:#0B1F2A;        /* harbor navy */
+  --ink-2:#143140;
+  --paper:#EEF2F3;      /* cool paper, biased toward ink */
+  --card:#FFFFFF;
+  --line:#C8D3D8;
+  --muted:#56676F;
+  --signal:#FFCD11;     /* Wincars yellow = hazard / terminal paint */
+  --signal-dk:#E6B800;
+  --on-ink:#E8EEF0;
+  --on-ink-muted:#93A7B0;
+  --ok:#1F8A5B;
+
+  --f-display:"Archivo","Arial Narrow",Arial,sans-serif;
+  --f-body:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+
+  --gut-l:max(16px, env(safe-area-inset-left, 0px));
+  --gut-r:max(16px, env(safe-area-inset-right, 0px));
+  --maxw:1200px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 var(--f-body);-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--signal);outline-offset:3px;border-radius:4px}
+
+.wrap{max-width:calc(var(--maxw) + 64px);margin-inline:auto;padding-left:var(--gut-l);padding-right:var(--gut-r)}
+@media (min-width:720px){.wrap{padding-left:max(32px, env(safe-area-inset-left, 0px));padding-right:max(32px, env(safe-area-inset-right, 0px))}}
+
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.02;letter-spacing:-.01em}
+h2{font-size:clamp(2rem,4.4vw,3.25rem);font-weight:800;font-stretch:112%}
+h3{font-size:1.25rem;font-weight:700;font-stretch:105%;line-height:1.2}
+p{margin:0}
+.eyebrow{font:600 .75rem/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;gap:.6em;align-items:center}
+.eyebrow::before{content:"";width:18px;height:8px;background:repeating-linear-gradient(-45deg,var(--signal) 0 4px,var(--ink) 4px 8px)}
+.lead{font-size:1.125rem;color:var(--muted);max-width:62ch}
+.mono{font-family:var(--f-mono)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:.6em;font:700 .95rem/1 var(--f-body);padding:16px 24px;border-radius:100px;text-decoration:none;border:2px solid transparent;cursor:pointer;transition:transform .15s ease, background .15s ease}
+.btn-primary{background:var(--signal);color:var(--ink)}
+.btn-primary:hover{background:var(--signal-dk)}
+.btn-ghost{border-color:currentColor;background:transparent}
+.btn:active{transform:translateY(1px)}
+.btn .arr{transition:transform .15s ease}
+.btn:hover .arr{transform:translateX(3px)}
+
+/* Header */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
+.site-head{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--ink);color:var(--on-ink);border-bottom:1px solid var(--ink-2)}
+.site-head .wrap{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:68px}
+.logo{display:inline-flex;align-items:center;text-decoration:none;color:var(--on-ink);font:800 1.4rem/1 var(--f-display);font-stretch:118%;letter-spacing:-.02em}
+.logo svg{height:.78em;width:auto;margin:0 .02em;transform:translateY(.02em)}
+.logo .tld{color:var(--signal);font-weight:700}
+.nav{display:flex;gap:28px;font-size:.9rem}
+.nav a{text-decoration:none;color:var(--on-ink-muted)}
+.nav a:hover{color:var(--on-ink)}
+.head-cta{padding:12px 18px;font-size:.85rem}
+@media (max-width:900px){.nav{display:none}}
+@media (max-width:420px){.head-cta .long{display:none}}
+
+/* Hero */
+.hero{background:var(--ink);color:var(--on-ink);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(var(--ink-2) 1px,transparent 1px),linear-gradient(90deg,var(--ink-2) 1px,transparent 1px);
+  background-size:48px 48px;mask-image:linear-gradient(180deg,rgba(0,0,0,.6),transparent 80%);-webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,.6),transparent 80%)}
+.hero .wrap{position:relative;z-index:1;display:grid;gap:48px;padding-block:64px 72px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:980px){.hero .wrap{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:center;padding-block:88px 96px}}
+.hero .eyebrow{color:var(--on-ink-muted)}
+.hero h1{font-size:clamp(2.6rem,6.6vw,5.2rem);font-weight:900;font-stretch:118%;margin-top:20px;text-transform:uppercase;letter-spacing:-.025em}
+.hero h1 .hl{color:var(--signal)}
+.hero .lead{color:var(--on-ink-muted);margin-top:24px}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+.hero-actions .btn-ghost{color:var(--on-ink)}
+.hero-facts{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:40px;padding-top:24px;border-top:1px solid var(--ink-2);font:500 .8rem/1.4 var(--f-mono);color:var(--on-ink-muted)}
+.hero-facts b{color:var(--on-ink);font-weight:600}
+
+/* Loop visual */
+.loop-card{background:#0E2633;border:1px solid var(--ink-2);border-radius:12px;padding:20px;min-width:0}
+.loop-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font:500 .72rem/1.3 var(--f-mono);color:var(--on-ink-muted);text-transform:uppercase;letter-spacing:.08em}
+.loop-top .id{color:var(--on-ink)}
+.loop-svg{display:block;width:100%;height:auto;margin-top:12px}
+.loop-svg .track{fill:none;stroke:#2A4A5A;stroke-width:2;stroke-dasharray:6 6}
+.loop-svg .track-live{fill:none;stroke:var(--signal);stroke-width:2.5;stroke-linecap:round}
+.loop-svg .st circle{fill:#0E2633;stroke:var(--on-ink-muted);stroke-width:2}
+.loop-svg .st.done circle{fill:var(--signal);stroke:var(--signal)}
+.loop-svg .st text{font:600 11px var(--f-mono);fill:var(--on-ink);letter-spacing:.04em}
+.loop-svg .st .sub{font:400 10px var(--f-mono);fill:var(--on-ink-muted)}
+.loop-svg .center-t{font:800 22px var(--f-display);font-stretch:118%;fill:var(--on-ink);letter-spacing:-.01em}
+.loop-svg .center-s{font:500 10.5px var(--f-mono);fill:var(--on-ink-muted);letter-spacing:.08em}
+.manifest{margin-top:16px;border-top:1px solid var(--ink-2)}
+.manifest-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--ink-2);font:500 .78rem/1.3 var(--f-mono);font-variant-numeric:tabular-nums}
+.manifest-row .u{color:var(--on-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.manifest-row .lot{color:var(--on-ink-muted)}
+.chip{font:600 .68rem/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;padding:5px 8px;border-radius:4px;white-space:nowrap}
+.chip-sea{background:#1E4A62;color:#BFE3F5}
+.chip-yard{background:#3A3415;color:var(--signal)}
+.chip-port{background:#173E2E;color:#9BE3C0}
+.chip-bid{background:#2B2F3A;color:#C9CFDB}
+.example-note{margin-top:10px;font:400 .7rem/1.4 var(--f-mono);color:var(--on-ink-muted)}
+@media (prefers-reduced-motion: reduce){.loop-svg .mover{display:none}}
+
+/* Sections */
+section{scroll-margin-top:80px}
+.sec{padding-block:88px}
+.sec-head{display:grid;gap:16px;margin-bottom:48px;max-width:780px}
+
+/* Segments */
+.segments{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.seg{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:28px 24px;display:grid;gap:12px;align-content:start;transition:border-color .15s ease, box-shadow .15s ease}
+.seg:hover{border-color:var(--signal);box-shadow:0 0 0 4px rgba(255,205,17,.25)}
+.seg .tag{font:600 .72rem/1 var(--f-mono);color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.seg p{color:var(--muted);font-size:.95rem}
+.seg ul{margin:4px 0 0;padding:0;list-style:none;display:grid;gap:6px;font-size:.9rem}
+.seg li{display:flex;gap:8px}
+.seg li::before{content:"→";color:var(--ink);font-weight:700}
+
+/* Services: ink band */
+.band{background:var(--ink);color:var(--on-ink)}
+.band .eyebrow{color:var(--on-ink-muted)}
+.band .lead{color:var(--on-ink-muted)}
+.services{display:grid;gap:1px;background:var(--ink-2);border:1px solid var(--ink-2);border-radius:8px;overflow:hidden;grid-template-columns:minmax(0,1fr)}
+@media (min-width:600px){.services{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:960px){.services{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.svc{background:var(--ink);padding:28px 24px;display:grid;gap:10px;align-content:start}
+.svc .code{font:600 .72rem/1 var(--f-mono);color:var(--signal);letter-spacing:.1em}
+.svc p{color:var(--on-ink-muted);font-size:.95rem}
+
+/* Process */
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:0;counter-reset:st}
+.step{display:grid;grid-template-columns:64px minmax(0,1fr);gap:20px;padding:24px 0;border-top:1px solid var(--line)}
+.step:last-child{border-bottom:1px solid var(--line)}
+.step .n{font:900 2.2rem/1 var(--f-display);font-stretch:118%;color:var(--ink)}
+.step .n small{display:block;font:500 .68rem/1.4 var(--f-mono);color:var(--muted);letter-spacing:.06em;margin-top:6px}
+.step-body{display:grid;gap:6px}
+.step-body p{color:var(--muted);max-width:70ch}
+.step .who{font:600 .72rem/1 var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+@media (min-width:860px){
+  .process-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:64px;align-items:start}
+  .process-grid .sec-head{position:sticky;top:110px;margin-bottom:0}
+}
+.loop-back{margin-top:20px;display:flex;gap:12px;align-items:center;font:600 .85rem/1.4 var(--f-mono);color:var(--ink);background:var(--card);border:1px dashed var(--ink);border-radius:8px;padding:14px 16px}
+
+/* Tiers table */
+.table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:.95rem}
+th,td{padding:16px 20px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{font-family:var(--f-display);font-stretch:112%;font-size:1.2rem;font-weight:800;background:var(--card)}
+thead th small{display:block;font:500 .75rem/1.4 var(--f-mono);color:var(--muted);margin-top:4px;letter-spacing:.02em}
+thead th.featured{background:var(--signal)}
+thead th.featured small{color:var(--ink)}
+tbody th{font-weight:600;color:var(--muted);font-size:.85rem;width:24%}
+td.featured{background:rgba(255,205,17,.10)}
+tbody tr:last-child th,tbody tr:last-child td{border-bottom:0}
+.yes{font-weight:600}
+.no{color:var(--muted)}
+.table-note{margin-top:12px;font-size:.85rem;color:var(--muted)}
+
+/* Account form */
+.apply{display:grid;gap:48px}
+@media (min-width:960px){.apply{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}}
+.docs-list{list-style:none;padding:0;margin:24px 0 0;display:grid;gap:10px}
+.docs-list li{display:flex;gap:12px;align-items:baseline;color:var(--on-ink-muted)}
+.docs-list .k{font:600 .75rem/1 var(--f-mono);color:var(--signal);min-width:44px}
+.form{background:var(--card);color:var(--ink);border-radius:12px;padding:28px;display:grid;gap:16px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.form .full{grid-column:1/-1}
+@media (max-width:560px){.form{grid-template-columns:minmax(0,1fr);padding:20px}}
+.field{display:grid;gap:6px;min-width:0}
+.field label{font:600 .8rem/1.2 var(--f-body)}
+.field input,.field select,.field textarea{font:inherit;font-size:.95rem;color:var(--ink);background:var(--paper);border:1.5px solid var(--line);border-radius:8px;padding:12px 14px;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(255,205,17,.55)}
+.field .hint{font-size:.75rem;color:var(--muted)}
+.vol{display:flex;flex-wrap:wrap;gap:8px;position:relative}
+.vol input{position:absolute;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none}
+.vol label{font:600 .85rem/1 var(--f-mono);border:1.5px solid var(--line);border-radius:100px;padding:10px 14px;cursor:pointer;background:var(--paper)}
+.vol input:checked + label{background:var(--ink);color:var(--on-ink);border-color:var(--ink)}
+.vol input:focus-visible + label{outline:3px solid var(--signal);outline-offset:2px}
+.form-foot{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between}
+.form-foot small{color:var(--muted);font-size:.78rem;max-width:40ch}
+.form-done{grid-column:1/-1;background:var(--paper);border:1.5px solid var(--ok);border-radius:8px;padding:16px;font-size:.95rem}
+
+/* FAQ */
+.faq{display:grid;gap:0;max-width:880px}
+.faq details{border-top:1px solid var(--line)}
+.faq details:last-child{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:24px;align-items:center;padding:22px 0;font:700 1.1rem/1.35 var(--f-body)}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary .pm{font:400 1.6rem/1 var(--f-mono);flex:none;width:36px;height:36px;border-radius:100px;display:grid;place-items:center;border:1.5px solid var(--line)}
+.faq details[open] summary .pm{background:var(--signal);border-color:var(--signal)}
+.faq details[open] summary .pm::before{content:"−"}
+.faq details:not([open]) summary .pm::before{content:"+"}
+.faq .ans{padding:0 0 24px;color:var(--muted);max-width:72ch}
+
+/* Footer */
+.foot{background:var(--ink);color:var(--on-ink-muted);padding-block:56px 40px;font-size:.9rem}
+.foot-grid{display:grid;gap:32px;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr))}
+.foot h4{margin:0 0 12px;font:600 .72rem/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--on-ink)}
+.foot ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.foot a{text-decoration:none}
+.foot a:hover{color:var(--on-ink)}
+.foot-base{margin-top:48px;padding-top:24px;border-top:1px solid var(--ink-2);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;font:500 .75rem/1.4 var(--f-mono)}
+.by-wincars{display:inline-flex;gap:8px;align-items:center}
+.by-wincars b{color:var(--signal);font-family:var(--f-display);font-stretch:118%;font-weight:900;letter-spacing:.02em}
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="Cargoloop.sv, inicio">
+      cargol<svg viewBox="0 0 60 28" aria-hidden="true"><path d="M30 14c-5-6-9-10-15-10a10 10 0 0 0 0 20c6 0 10-4 15-10Zm0 0c5 6 9 10 15 10a10 10 0 0 0 0-20c-6 0-10 4-15 10Z" fill="none" stroke="currentColor" stroke-width="5"/></svg>p<span class="tld">.sv</span>
+    </a>
+    <nav class="nav" aria-label="Principal">
+      <a href="#para-quien">Para quién</a>
+      <a href="#servicios">Servicios</a>
+      <a href="#proceso">Proceso</a>
+      <a href="#volumen">Volumen</a>
+      <a href="#faq">Preguntas</a>
+    </nav>
+    <a class="btn btn-primary head-cta" href="#cuenta">Abrir cuenta<span class="long">&nbsp;B2B</span></a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <p class="eyebrow">Abastecimiento B2B · EE.UU. y Canadá → El Salvador</p>
+        <h1>Inventario para tu negocio, <span class="hl">en ciclo continuo</span></h1>
+        <p class="lead">Compramos en subastas de EE.UU. y Canadá a nombre de tu empresa, consolidamos en contenedor y entregamos en tu predio con la aduana resuelta. Mientras un lote navega, el siguiente ya está en puja.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#cuenta">Abrir cuenta B2B <span class="arr">→</span></a>
+          <a class="btn btn-ghost" href="#proceso">Ver el proceso</a>
+        </div>
+        <div class="hero-facts">
+          <span><b>Sin licencia</b> de subasta propia</span>
+          <span><b>Factura</b> con crédito fiscal</span>
+          <span><b>Un gestor</b> para toda tu cuenta</span>
+        </div>
+      </div>
+
+      <div class="loop-card" aria-label="Ejemplo de pedido en curso">
+        <div class="loop-top"><span>Pedido <span class="id">CL-2611-014</span></span><span>6 unidades · 2 contenedores</span></div>
+        <svg class="loop-svg" viewBox="0 0 520 300" role="img" aria-label="Ruta del ciclo: subasta, yard en EE.UU., puerto de origen, naviera, Acajutla, aduana, tu predio y de vuelta a la siguiente subasta">
+          <defs>
+            <path id="route" d="M150 40 H370 A110 110 0 0 1 370 260 H150 A110 110 0 0 1 150 40 Z"/>
+          </defs>
+          <use href="#route" class="track"/>
+          <!-- completed part: auction → origin port -->
+          <path class="track-live" d="M150 40 H370 A110 110 0 0 1 465 95"/>
+          <g class="st done"><circle cx="150" cy="40" r="7"/><text x="150" y="22" text-anchor="middle">SUBASTA</text></g>
+          <g class="st done"><circle cx="370" cy="40" r="7"/><text x="370" y="22" text-anchor="middle">YARD EE.UU.</text></g>
+          <g class="st done"><circle cx="465" cy="95" r="7"/><text x="480" y="80" text-anchor="end">PUERTO ORIGEN</text></g>
+          <g class="st"><circle cx="465" cy="205" r="7"/><text x="480" y="232" text-anchor="end">NAVIERA</text></g>
+          <g class="st"><circle cx="370" cy="260" r="7"/><text x="370" y="286" text-anchor="middle">ACAJUTLA</text></g>
+          <g class="st"><circle cx="150" cy="260" r="7"/><text x="150" y="286" text-anchor="middle">ADUANA SV</text></g>
+          <g class="st"><circle cx="55" cy="205" r="7"/><text x="40" y="232" text-anchor="start">TU PREDIO</text></g>
+          <g class="st"><circle cx="55" cy="95" r="7"/><text x="40" y="80" text-anchor="start">SIGUIENTE LOTE</text></g>
+          <text class="center-t" x="260" y="150" text-anchor="middle">cargoloop</text>
+          <text class="center-s" x="260" y="172" text-anchor="middle">SUBASTA → PREDIO → SUBASTA</text>
+          <g class="mover">
+            <rect x="-11" y="-7" width="22" height="14" rx="2" fill="#FFCD11"/>
+            <path d="M-6 -4v8M-2 -4v8M2 -4v8M6 -4v8" stroke="#0B1F2A" stroke-width="1.3"/>
+            <animateMotion dur="14s" repeatCount="indefinite" rotate="auto"><mpath href="#route"/></animateMotion>
+          </g>
+        </svg>
+        <div class="manifest" role="table" aria-label="Unidades del pedido">
+          <div class="manifest-row" role="row"><span class="lot" role="cell">LOT 41•••872</span><span class="u" role="cell">Toyota Corolla LE 2021</span><span class="chip chip-sea" role="cell">En mar</span></div>
+          <div class="manifest-row" role="row"><span class="lot" role="cell">LOT 39•••115</span><span class="u" role="cell">Hyundai Elantra SE 2020</span><span class="chip chip-sea" role="cell">En mar</span></div>
+          <div class="manifest-row" role="row"><span class="lot" role="cell">LOT 40•••604</span><span class="u" role="cell">Nissan Frontier S 2019</span><span class="chip chip-yard" role="cell">En yard</span></div>
+          <div class="manifest-row" role="row"><span class="lot" role="cell">LOT 42•••330</span><span class="u" role="cell">Kia Sportage LX 2020</span><span class="chip chip-bid" role="cell">En puja</span></div>
+        </div>
+        <p class="example-note">Ejemplo ilustrativo del panel de seguimiento.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEGMENTS -->
+  <section class="sec" id="para-quien">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Para quién</p>
+        <h2>Para empresas que compran autos para vender, rentar o reparar</h2>
+        <p class="lead">Si tu negocio necesita unidades cada mes, no una sola vez, Cargoloop funciona como tu departamento de compras en Estados Unidos.</p>
+      </div>
+      <div class="segments">
+        <article class="seg">
+          <span class="tag">Reventa</span>
+          <h3>Concesionarios y predios de usados</h3>
+          <p>Stock rotativo comprado por debajo del mercado local, con historial verificado.</p>
+          <ul><li>Listas de búsqueda por modelo y margen</li><li>Fotos y reportes antes de pujar</li></ul>
+        </article>
+        <article class="seg">
+          <span class="tag">Flotas</span>
+          <h3>Rent a car, taxi y plataformas</h3>
+          <p>Unidades homogéneas del mismo modelo y año para estandarizar mantenimiento y repuestos.</p>
+          <ul><li>Compras en serie del mismo modelo</li><li>Entregas por etapas según tu calendario</li></ul>
+        </article>
+        <article class="seg">
+          <span class="tag">Reparación</span>
+          <h3>Talleres y reconstructores</h3>
+          <p>Autos con daño leve o medio para reparar y vender, y unidades para desarme.</p>
+          <ul><li>Estimación de daño antes de pujar</li><li>Títulos salvage y rebuilt explicados</li></ul>
+        </article>
+        <article class="seg">
+          <span class="tag">Corporativo</span>
+          <h3>Empresas con flota propia</h3>
+          <p>Pick-ups y vans de trabajo para distribución, construcción y servicios técnicos.</p>
+          <ul><li>Facturación a nombre de la empresa</li><li>Un solo contacto para todo el pedido</li></ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="sec band" id="servicios">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Servicios</p>
+        <h2>Toda la cadena, de la puja al predio</h2>
+        <p class="lead">Contratás el ciclo completo o solo el tramo que te falta. Cada servicio tiene su línea en la cotización.</p>
+      </div>
+      <div class="services">
+        <div class="svc"><span class="code">01 · SUBASTA</span><h3>Acceso a subastas</h3><p>Pujamos en subastas de EE.UU. y Canadá con nuestra cuenta de comprador. No necesitás licencia de dealer.</p></div>
+        <div class="svc"><span class="code">02 · INSPECCIÓN</span><h3>Verificación del lote</h3><p>Decodificación del VIN, reportes de historial, revisión de fotos y del tipo de título antes de cada puja.</p></div>
+        <div class="svc"><span class="code">03 · TRANSPORTE</span><h3>Grúa en EE.UU.</h3><p>Recogida en la subasta y traslado al yard de consolidación más cercano al puerto de salida.</p></div>
+        <div class="svc"><span class="code">04 · CONTENEDOR</span><h3>Consolidación</h3><p>Cargamos varias unidades por contenedor para bajar el costo de flete por auto.</p></div>
+        <div class="svc"><span class="code">05 · ADUANA</span><h3>Despacho en El Salvador</h3><p>Trámite aduanal, cálculo de impuestos de importación y liberación en puerto.</p></div>
+        <div class="svc"><span class="code">06 · ENTREGA</span><h3>Entrega en tu predio</h3><p>Traslado desde el puerto hasta tu local, con documentos listos para inscripción.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="sec" id="proceso">
+    <div class="wrap process-grid">
+      <div class="sec-head">
+        <p class="eyebrow">Proceso</p>
+        <h2>Cómo funciona un ciclo</h2>
+        <p class="lead">Los plazos dependen del puerto de salida, la naviera y la aduana. Te confirmamos fechas por cada lote.</p>
+      </div>
+      <div>
+        <ol class="steps">
+          <li class="step"><span class="n">1<small>Día 0</small></span><div class="step-body"><span class="who">Vos + gestor</span><h3>Lista de compra</h3><p>Definís modelos, años, presupuesto máximo por unidad y el tipo de daño que aceptás. Firmamos el contrato y abrís tu depósito de garantía.</p></div></li>
+          <li class="step"><span class="n">2<small>Semanal</small></span><div class="step-body"><span class="who">Cargoloop</span><h3>Selección y puja</h3><p>Te enviamos los lotes que encajan con tu lista, con fotos y reportes. Aprobás, y pujamos hasta tu tope.</p></div></li>
+          <li class="step"><span class="n">3<small>~1 semana</small></span><div class="step-body"><span class="who">Cargoloop</span><h3>Pago, grúa y yard</h3><p>Pagás la factura de la subasta. Retiramos el auto y lo llevamos al yard, donde se fotografía al llegar.</p></div></li>
+          <li class="step"><span class="n">4<small>Variable</small></span><div class="step-body"><span class="who">Naviera</span><h3>Carga y tránsito marítimo</h3><p>Consolidamos el contenedor y lo embarcamos. Recibís el número de contenedor y el BL para seguirlo.</p></div></li>
+          <li class="step"><span class="n">5<small>Al arribo</small></span><div class="step-body"><span class="who">Agente aduanal</span><h3>Aduana y liberación</h3><p>Desaduanamos en El Salvador y te entregamos el detalle de impuestos pagados por unidad.</p></div></li>
+          <li class="step"><span class="n">6<small>Entrega</small></span><div class="step-body"><span class="who">Cargoloop</span><h3>Entrega y factura</h3><p>Recibís las unidades en tu predio con la documentación y la factura con crédito fiscal.</p></div></li>
+        </ol>
+        <p class="loop-back"><span aria-hidden="true">↺</span> Mientras el paso 4 está en curso, el paso 2 del siguiente lote ya empezó.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- VOLUME -->
+  <section class="sec" id="volumen" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Volumen</p>
+        <h2>Más unidades al mes, mejores condiciones</h2>
+        <p class="lead">La tarifa de servicio baja con el volumen. Cotizamos cada cuenta según los modelos y la ruta.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col"><span class="mono" style="font-size:.75rem;color:var(--muted);font-weight:500">Cuenta</span></th>
+              <th scope="col">Start<small>1–4 unidades / mes</small></th>
+              <th scope="col" class="featured">Pro<small>5–19 unidades / mes</small></th>
+              <th scope="col">Fleet<small>20+ unidades / mes</small></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Gestor dedicado</th><td class="yes">Sí</td><td class="featured yes">Sí</td><td class="yes">Sí, más un analista de compras</td></tr>
+            <tr><th scope="row">Selección de lotes</th><td>Bajo pedido</td><td class="featured">Envío semanal según tu lista</td><td>Envío diario según tu lista</td></tr>
+            <tr><th scope="row">Consolidación</th><td>Contenedor compartido</td><td class="featured">Contenedor compartido o propio</td><td>Contenedores propios</td></tr>
+            <tr><th scope="row">Tarifa de servicio</th><td>Base</td><td class="featured">Reducida</td><td>Negociada</td></tr>
+            <tr><th scope="row">Condiciones de pago</th><td>Prepago</td><td class="featured">Prepago</td><td>Línea de crédito sujeta a evaluación</td></tr>
+            <tr><th scope="row">Reportes</th><td>Por unidad</td><td class="featured">Panel de seguimiento</td><td>Panel y reporte mensual de costos</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">Condiciones indicativas. El precio final por unidad incluye puja, comisiones de subasta, transporte, flete, seguro, impuestos y nuestra tarifa de servicio, cada uno por separado.</p>
+    </div>
+  </section>
+
+  <!-- ACCOUNT FORM -->
+  <section class="sec band" id="cuenta">
+    <div class="wrap apply">
+      <div>
+        <p class="eyebrow">Cuenta B2B</p>
+        <h2 style="margin-top:16px">Abrí tu cuenta de empresa</h2>
+        <p class="lead" style="margin-top:16px">Contanos qué comprás y cuántas unidades movés. Un gestor te contacta con una cotización por ruta y modelo.</p>
+        <ul class="docs-list">
+          <li><span class="k">NIT</span>Número de identificación tributaria de la empresa</li>
+          <li><span class="k">NRC</span>Registro de contribuyente para la factura con crédito fiscal</li>
+          <li><span class="k">DUI</span>Documento del representante legal</li>
+          <li><span class="k">DEP</span>Depósito de garantía antes de la primera puja</li>
+        </ul>
+      </div>
+      <form class="form" id="b2b-form" novalidate>
+        <div class="field"><label for="f-empresa">Empresa</label><input id="f-empresa" name="empresa" autocomplete="organization" placeholder="Autos del Pacífico, S.A. de C.V." required></div>
+        <div class="field"><label for="f-nit">NIT</label><input id="f-nit" name="nit" inputmode="numeric" placeholder="0614-000000-000-0"></div>
+        <div class="field"><label for="f-nombre">Nombre de contacto</label><input id="f-nombre" name="nombre" autocomplete="name" required></div>
+        <div class="field"><label for="f-tel">WhatsApp</label><input id="f-tel" name="tel" type="tel" autocomplete="tel" placeholder="+503 7000-0000" required></div>
+        <div class="field full"><label for="f-tipo">Tipo de negocio</label>
+          <select id="f-tipo" name="tipo">
+            <option>Concesionario o predio de usados</option>
+            <option>Rent a car, taxi o plataforma</option>
+            <option>Taller o reconstructor</option>
+            <option>Empresa con flota propia</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <fieldset class="field full" style="border:0;padding:0;margin:0">
+          <legend style="font:600 .8rem/1.2 var(--f-body);margin-bottom:6px">Unidades por mes</legend>
+          <div class="vol">
+            <input type="radio" id="v1" name="vol" value="1-4"><label for="v1">1–4</label>
+            <input type="radio" id="v2" name="vol" value="5-19" checked><label for="v2">5–19</label>
+            <input type="radio" id="v3" name="vol" value="20+"><label for="v3">20+</label>
+          </div>
+        </fieldset>
+        <div class="field full"><label for="f-modelos">Modelos que buscás</label><textarea id="f-modelos" name="modelos" rows="3" placeholder="Ej.: Toyota Corolla 2019–2022, Nissan Frontier 2018+, daño leve"></textarea><span class="hint">Marca, modelo, años y presupuesto aproximado por unidad.</span></div>
+        <div class="form-foot full">
+          <small>Usamos estos datos solo para preparar tu cotización.</small>
+          <button class="btn btn-primary" type="submit">Solicitar cotización <span class="arr">→</span></button>
+        </div>
+        <div class="form-done" id="form-done" hidden role="status"></div>
+      </form>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="sec" id="faq">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Preguntas frecuentes</p>
+        <h2>Lo que preguntan las empresas antes de empezar</h2>
+      </div>
+      <div class="faq">
+        <details open><summary>¿Necesito licencia de dealer para comprar en subastas?<span class="pm" aria-hidden="true"></span></summary><p class="ans">No. Pujamos con nuestra cuenta de comprador y el auto se transfiere a tu empresa. Vos aprobás cada lote y el precio máximo.</p></details>
+        <details><summary>¿Cómo se calcula el costo total por unidad?<span class="pm" aria-hidden="true"></span></summary><p class="ans">Precio de puja + comisiones de la subasta + grúa en EE.UU. + flete marítimo y seguro + impuestos de importación en El Salvador + nuestra tarifa de servicio. Antes de pujar te enviamos el cálculo estimado de cada lote.</p></details>
+        <details><summary>¿Cuánto tarda un ciclo completo?<span class="pm" aria-hidden="true"></span></summary><p class="ans">Depende del estado de origen, del puerto de salida y del calendario de la naviera. Te damos una fecha estimada por lote y la actualizamos en cada etapa.</p></details>
+        <details><summary>¿Emiten factura con crédito fiscal?<span class="pm" aria-hidden="true"></span></summary><p class="ans">Sí. Las cuentas B2B reciben comprobante de crédito fiscal a nombre de la empresa, con el desglose de cada unidad.</p></details>
+        <details><summary>¿Puedo comprar autos con daño?<span class="pm" aria-hidden="true"></span></summary><p class="ans">Sí. Te explicamos el tipo de título de cada lote (clean, salvage, rebuilt) y qué implica para la importación y la inscripción en El Salvador.</p></details>
+        <details><summary>¿Qué diferencia hay con Wincars?<span class="pm" aria-hidden="true"></span></summary><p class="ans">Wincars atiende a personas que importan su propio carro. Cargoloop es el servicio de Wincars para empresas: compras recurrentes, consolidación por volumen y facturación empresarial.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a class="logo" href="#top" aria-label="Cargoloop.sv">cargol<svg viewBox="0 0 60 28" aria-hidden="true"><path d="M30 14c-5-6-9-10-15-10a10 10 0 0 0 0 20c6 0 10-4 15-10Zm0 0c5 6 9 10 15 10a10 10 0 0 0 0-20c-6 0-10 4-15 10Z" fill="none" stroke="currentColor" stroke-width="5"/></svg>p<span class="tld">.sv</span></a>
+        <p style="margin-top:12px;max-width:32ch">Abastecimiento B2B de vehículos desde EE.UU. y Canadá para El Salvador.</p>
+      </div>
+      <div><h4>Servicio</h4><ul><li><a href="#servicios">Servicios</a></li><li><a href="#proceso">Proceso</a></li><li><a href="#volumen">Volumen</a></li><li><a href="#faq">Preguntas</a></li></ul></div>
+      <div><h4>Contacto</h4><ul><li class="mono">+503 7768-2323</li><li class="mono">+503 7769-0021</li><li>San Salvador, El Salvador</li></ul></div>
+      <div><h4>Cuenta</h4><ul><li><a href="#cuenta">Abrir cuenta B2B</a></li><li><a href="https://wincars.sv/" target="_blank" rel="noopener">Compra para particulares → wincars.sv</a></li></ul></div>
+    </div>
+    <div class="foot-base">
+      <span>© 2026 Cargoloop.sv</span>
+      <span class="by-wincars">un servicio de <b>WINCARS</b></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var form=document.getElementById('b2b-form');
+  var done=document.getElementById('form-done');
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var missing=[].filter.call(form.querySelectorAll('[required]'),function(el){return !el.value.trim()});
+    missing.forEach(function(el){el.setAttribute('aria-invalid','true')});
+    if(missing.length){
+      done.hidden=false;done.style.borderColor='#C2410C';
+      done.textContent='Completá empresa, nombre de contacto y WhatsApp para enviar la solicitud.';
+      missing[0].focus();return;
+    }
+    done.hidden=false;done.style.borderColor='';
+    var empresa=form.empresa.value.trim();
+    // TODO: conectar al CRM / endpoint de leads antes de publicar en producción.
+    done.textContent='Solicitud lista para '+empresa+'. En el sitio en producción, un gestor recibirá estos datos y te escribirá por WhatsApp.';
+  });
+  form.addEventListener('input',function(e){e.target.removeAttribute('aria-invalid')});
+})();
+</script>
+</body>
+</html>
